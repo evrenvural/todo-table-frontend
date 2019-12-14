@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table-v6';
 import 'react-table-v6/react-table.css';
+import { fetchTodos } from '../../redux/actions/todos';
+import { connect } from 'react-redux';
 
-export class Home extends Component {
+class Home extends Component {
     constructor(){
         super();
 
@@ -38,6 +40,14 @@ export class Home extends Component {
         }
     }
 
+    componentDidMount(){
+        this.props.getTodos();
+    }
+
+    componentDidUpdate(){
+        console.log(this.props.todos);
+    }
+
     render() {
         return (
             <div>
@@ -55,3 +65,16 @@ export class Home extends Component {
         )
     }
 }
+
+const mapStateToProps = (state) => ({
+    todos: state.todos.todos
+});
+
+const mapDispatchToProps = (dispatch) => ({
+    getTodos: () => fetchTodos(dispatch)
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Home);
