@@ -28,6 +28,29 @@ export default function todos(state = InitialState, action = {}){
                 error: action.payload.data,
                 isLoading: false
             };
+        case REQUEST(ACTION_TYPE.ADD_TODO):
+            return {
+                ...state,
+                error: null,
+                isLoading: true
+            };
+        case SUCCESS(ACTION_TYPE.ADD_TODO):
+            const todosArray = [...state.todos];
+            const newData = action.payload.data;
+            todosArray.push(newData)
+
+            return {
+                ...state,
+                todos: todosArray,
+                error: null,
+                isLoading: false
+            };
+        case FAILURE(ACTION_TYPE.ADD_TODO):
+            return {
+                ...state,
+                error: action.payload.data,
+                isLoading: false
+            };
         default:
             return state;
     }
