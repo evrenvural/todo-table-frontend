@@ -28,7 +28,8 @@ class Home extends Component {
             },
             {
                 Header: 'Ne Zamana Kadar?',
-                accessor: 'date'
+                accessor: item => item.date ? moment(item.date).format('DD/MM/YYYY') : '',
+                id: 'date'
             }
 
         ]
@@ -148,16 +149,16 @@ class Home extends Component {
                 <Modal isOpen={this.state.addTodo.inputModalVisual} toggle={this.toggleInputModalAddTodo}
                     className={'modal-warning ' + this.props.className}>
                     
-                    <ModalHeader toggle={this.toggleInputAddModalTodo}>Promocode</ModalHeader>
+                    <ModalHeader toggle={this.toggleInputAddModalTodo}>Ekle</ModalHeader>
                     
                     <ModalBody>
                         <InputGroup>
                             <InputGroupAddon addonType="prepend">
-                                <InputGroupText>No</InputGroupText>
+                                <InputGroupText></InputGroupText>
                             </InputGroupAddon>
                             <Input
                                 name="addTodo.title" 
-                                placeholder="Title"
+                                placeholder="Başlık"
                                 onChange={this.handleChange}
                                 value={this.state.addTodo.data.title} 
                             />
@@ -165,11 +166,11 @@ class Home extends Component {
                         <br/>
                         <InputGroup>
                             <InputGroupAddon addonType="prepend">
-                                <InputGroupText>No</InputGroupText>
+                                <InputGroupText></InputGroupText>
                             </InputGroupAddon>
                             <Input
                                 name="addTodo.description" 
-                                placeholder="Description"
+                                placeholder="Açıklama"
                                 onChange={this.handleChange}
                                 value={this.state.addTodo.data.description} 
                             />
@@ -201,7 +202,7 @@ class Home extends Component {
                     
                     <ModalFooter>
                         <Button color="warning"
-                            onClick={() => this.toggleSureModalAddTodo()}>Gönder</Button>{' '}
+                            onClick={() => this.toggleSureModalAddTodo()}>Ekle</Button>{' '}
                         <Button color="secondary" onClick={this.toggleInputModalAddTodo}>Vazgeç</Button>
                     </ModalFooter>
                 </Modal>
@@ -209,15 +210,15 @@ class Home extends Component {
                 <Modal isOpen={this.state.addTodo.sureModalVisual} toggle={this.toggleSureModalAddTodo}
                     className={'modal-warning ' + this.props.className}>
 
-                    <ModalHeader toggle={this.toggleSureModalAddTodo}>Make Free</ModalHeader>
+                    <ModalHeader toggle={this.toggleSureModalAddTodo}>Ekle</ModalHeader>
                     
                     <ModalBody>
-                        promocode'u göndermek istediğinize emin misiniz?
+                        Görevi eklemek istediğinize emin misiniz?
                     </ModalBody>
                     
                     <ModalFooter>
                         <Button color="warning"
-                            onClick={() => this.addTodoPress(this.state.addTodo.data)}>Onayla</Button>{' '}
+                            onClick={() => this.addTodoPress(this.state.addTodo.data)}>Evet</Button>{' '}
                         <Button color="secondary" onClick={this.toggleSureModalAddTodo}>Geri Dön</Button>
                     </ModalFooter>
                 </Modal>
@@ -238,7 +239,7 @@ class Home extends Component {
                     <ModalHeader>İşleminiz Başarılı</ModalHeader>
                     
                     <ModalBody>
-                        Promocode başarılı bir şekilde gönderilmiştir.
+                        Görev başarılı bir şekilde eklenmiştir.
                     </ModalBody>
 
                     <ModalFooter>
@@ -256,7 +257,7 @@ class Home extends Component {
                     <ModalHeader>İşleminiz Hatalı</ModalHeader>
                     
                     <ModalBody>
-                        Promocode gönderilirken bir hata meydana geldi lütfen tekrar deneyiniz.
+                        Görev eklenirken bir hata meydana geldi lütfen tekrar deneyiniz.
                     </ModalBody>
                     
                     <ModalFooter>
@@ -269,12 +270,12 @@ class Home extends Component {
                 <button>Yapılacaklar</button>
                 <button>Yapılıyor</button>
                 <button>Tamamlandı</button>
-                <button onClick={this.toggleInputModalAddTodo}>Todo Ekle</button>
+                <button onClick={this.toggleInputModalAddTodo}>Ekle</button>
 
                 <ReactTable 
                     columns={this.columns} 
-                    data={this.props.todo}
-                    // filterable={true}
+                    data={this.props.todos}
+                    filterable={true}
                     pageSize={10}
                 />
             </div>
@@ -283,7 +284,8 @@ class Home extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    todo: state.todos.todos
+    todo: state.todos,
+    todos: state.todos.todos
 });
 
 const mapDispatchToProps = (dispatch) => ({
