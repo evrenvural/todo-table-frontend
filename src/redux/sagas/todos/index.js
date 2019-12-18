@@ -95,3 +95,49 @@ export function* deleteTodoSaga(){
         }
     }
 }
+
+export function* changeStatusNextSaga(){
+    while(true) {
+        try{
+            // take action
+            const { payload } = yield take(REQUEST(ACTION_TYPE.CHANGE_STATUS_NEXT));
+
+            // service call
+            yield call([todoServices, todoServices.changeStatusNext], payload.todoId);
+
+            // change state
+            yield put({
+                type: SUCCESS(ACTION_TYPE.CHANGE_STATUS_NEXT),
+                payload: {id: payload.todoId}
+            });
+        } catch(error){
+            yield put({
+                type: FAILURE(ACTION_TYPE.CHANGE_STATUS_NEXT),
+                payload: {data: error}
+            });
+        }
+    }
+}
+
+export function* changeStatusPrevSaga(){
+    while(true) {
+        try{
+            // take action
+            const { payload } = yield take(REQUEST(ACTION_TYPE.CHANGE_STATUS_PREV));
+
+            // service call
+            yield call([todoServices, todoServices.changeStatusPrev], payload.todoId);
+
+            // change state
+            yield put({
+                type: SUCCESS(ACTION_TYPE.CHANGE_STATUS_PREV),
+                payload: {id: payload.todoId}
+            });
+        } catch(error){
+            yield put({
+                type: FAILURE(ACTION_TYPE.CHANGE_STATUS_PREV),
+                payload: {data: error}
+            });
+        }
+    }
+}

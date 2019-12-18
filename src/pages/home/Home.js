@@ -6,7 +6,7 @@ import {
     InputGroupText, Input, FormGroup
 } from 'reactstrap';
 import moment from 'moment';
-import { fetchTodos, addTodo, updateTodo, deleteTodo } from '../../redux/actions/todos';
+import { fetchTodos, addTodo, updateTodo, deleteTodo, changeStatusNext, changeStatusPrev } from '../../redux/actions/todos';
 import { connect } from 'react-redux';
 
 class Home extends Component {
@@ -14,6 +14,22 @@ class Home extends Component {
         super();
 
         this.columns = [
+            {
+                Header: '',
+                Cell: (row) => (
+                    <Button onClick={() => this.toggleSureModalChangeStatusNext(row.original.id)}>+</Button>
+                ),
+                width: 50,
+                filterable: false
+            },
+            {
+                Header: '',
+                Cell: (row) => (
+                    <Button onClick={() => this.toggleSureModalChangeStatusPrev(row.original.id)}>-</Button>
+                ),
+                width: 50,
+                filterable: false
+            },
             {
                 Header: 'Başlık',
                 accessor: 'title'
@@ -36,7 +52,7 @@ class Home extends Component {
                 Cell: (row) => (
                     <Button onClick={() => this.toggleInputModalUpdateTodo(row.original.id, row.original)}>Düzenle</Button>
                 ),
-                width: 100,
+                width: 90,
                 filterable: false
             },
             {
@@ -44,7 +60,7 @@ class Home extends Component {
                 Cell: (row) => (
                     <Button onClick={() => this.toggleSureModalDeleteTodo(row.original.id)}>Sil</Button>
                 ),
-                width: 60,
+                width: 55,
                 filterable: false
             }
         ]
@@ -82,6 +98,20 @@ class Home extends Component {
                     importantValue: '1',
                     date: moment(new Date().getTime()).format('YYYY-MM-DD')
                 },
+                todoId: null
+            },
+            changeStatusNext: {
+                sureModalVisual: false,
+                isSuccess: false,
+                isFailed: false,
+                isRequesting: false,
+                todoId: null
+            },
+            changeStatusPrev: {
+                sureModalVisual: false,
+                isSuccess: false,
+                isFailed: false,
+                isRequesting: false,
                 todoId: null
             },
         }
@@ -154,6 +184,50 @@ class Home extends Component {
             else {
                 this.setState(prevState => ({
                     deleteTodo: { ...prevState.deleteTodo,
+                        sureModalVisual: false,
+                        isSuccess: true,
+                        isRequesting: false,
+                        isFailed: false
+                    }
+                }));
+            }
+        }
+        else if (this.state.changeStatusNext.isRequesting && !this.props.todo.isLoading) {
+            if (this.props.todo.error) {
+                this.setState(prevState => ({
+                    changeStatusNext: { ...prevState.changeStatusNext,
+                        sureModalVisual: false,
+                        isSuccess: false,
+                        isRequesting: false,
+                        isFailed: true
+                    }
+                }));
+            } 
+            else {
+                this.setState(prevState => ({
+                    changeStatusNext: { ...prevState.changeStatusNext,
+                        sureModalVisual: false,
+                        isSuccess: true,
+                        isRequesting: false,
+                        isFailed: false
+                    }
+                }));
+            }
+        }
+        else if (this.state.changeStatusPrev.isRequesting && !this.props.todo.isLoading) {
+            if (this.props.todo.error) {
+                this.setState(prevState => ({
+                    changeStatusPrev: { ...prevState.changeStatusPrev,
+                        sureModalVisual: false,
+                        isSuccess: false,
+                        isRequesting: false,
+                        isFailed: true
+                    }
+                }));
+            } 
+            else {
+                this.setState(prevState => ({
+                    changeStatusPrev: { ...prevState.changeStatusPrev,
                         sureModalVisual: false,
                         isSuccess: true,
                         isRequesting: false,
@@ -311,6 +385,44 @@ class Home extends Component {
 
         this.setState(prevState => ({
             deleteTodo: { ...prevState.deleteTodo,
+                isRequesting: true,
+                todoId: null
+            }
+        }));
+    }
+
+    toggleSureModalChangeStatusNext = (todoId) => {
+        this.setState(prevState => ({
+            changeStatusNext: { ...prevState.changeStatusNext,
+                sureModalVisual: !prevState.changeStatusNext.sureModalVisual,
+                todoId: todoId
+            }
+        }));
+    }
+    changeStatusNextPress = (todoId) => {
+        this.props.statusNextChange(todoId);
+
+        this.setState(prevState => ({
+            changeStatusNext: { ...prevState.changeStatusNext,
+                isRequesting: true,
+                todoId: null
+            }
+        }));
+    }
+
+    toggleSureModalChangeStatusPrev = (todoId) => {
+        this.setState(prevState => ({
+            changeStatusPrev: { ...prevState.changeStatusPrev,
+                sureModalVisual: !prevState.changeStatusPrev.sureModalVisual,
+                todoId: todoId
+            }
+        }));
+    }
+    changeStatusPrevPress = (todoId) => {
+        this.props.statusPrevChange(todoId);
+
+        this.setState(prevState => ({
+            changeStatusPrev: { ...prevState.changeStatusPrev,
                 isRequesting: true,
                 todoId: null
             }
@@ -626,10 +738,130 @@ class Home extends Component {
                 </Modal>
 
 
-                <button>Yapılacaklar</button>
-                <button>Yapılıyor</button>
-                <button>Tamamlandı</button>
-                <button onClick={this.toggleInputModalAddTodo}>Ekle</button>
+                <Modal isOpen={this.state.changeStatusNext.sureModalVisual} toggle={this.toggleSureModalChangeStatusNext}
+                    className={'modal-warning ' + this.props.className}>
+
+                    <ModalHeader toggle={this.toggleSureModalChangeStatusNext}>Sil</ModalHeader>
+                    
+                    <ModalBody>
+                        Görevi silmek istediğinize emin misiniz?
+                    </ModalBody>
+                    
+                    <ModalFooter>
+                        <Button color="warning"
+                            onClick={() => this.changeStatusNextPress(this.state.changeStatusNext.todoId)}>Evet</Button>{' '}
+                        <Button color="secondary" onClick={this.toggleSureModalChangeStatusNext}>Vazgeç</Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal isOpen={this.state.changeStatusNext.isRequesting}
+                    className={'modal-info ' + this.props.className}>
+                    
+                    <ModalHeader>Bilgilendirme</ModalHeader>
+                    
+                    <ModalBody>
+                        İşleminiz gerçekleştiriliyor. Lütfen bekleyiniz...
+                    </ModalBody>
+                </Modal>
+
+                <Modal isOpen={this.state.changeStatusNext.isSuccess}
+                    className={'modal-success ' + this.props.className}>
+                    
+                    <ModalHeader>İşleminiz Başarılı</ModalHeader>
+                    
+                    <ModalBody>
+                        Görev başarılı bir şekilde silinmiştir.
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button 
+                            color="success"
+                            onClick={() => this.setState(prevState => ({ changeStatusNext: {...prevState.changeStatusNext, isSuccess: false } }))}>
+                                Tamam
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal isOpen={this.state.changeStatusNext.isFailed}
+                    className={'modal-danger ' + this.props.className}>
+                    
+                    <ModalHeader>İşleminiz Hatalı</ModalHeader>
+                    
+                    <ModalBody>
+                        Görev silinirken bir hata meydana geldi lütfen tekrar deneyiniz.
+                    </ModalBody>
+                    
+                    <ModalFooter>
+                        <Button color="danger"
+                            onClick={() => this.setState(prevState => ({ changeStatusNext: { ...prevState.changeStatusNext, isFailed: false } }))}>Tamam</Button>
+                    </ModalFooter>
+                </Modal>
+
+
+                <Modal isOpen={this.state.changeStatusPrev.sureModalVisual} toggle={this.toggleSureModalChangeStatusPrev}
+                    className={'modal-warning ' + this.props.className}>
+
+                    <ModalHeader toggle={this.toggleSureModalChangeStatusPrev}>Sil</ModalHeader>
+                    
+                    <ModalBody>
+                        Görevi silmek istediğinize emin misiniz?
+                    </ModalBody>
+                    
+                    <ModalFooter>
+                        <Button color="warning"
+                            onClick={() => this.changeStatusPrevPress(this.state.changeStatusPrev.todoId)}>Evet</Button>{' '}
+                        <Button color="secondary" onClick={this.toggleSureModalChangeStatusPrev}>Vazgeç</Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal isOpen={this.state.changeStatusPrev.isRequesting}
+                    className={'modal-info ' + this.props.className}>
+                    
+                    <ModalHeader>Bilgilendirme</ModalHeader>
+                    
+                    <ModalBody>
+                        İşleminiz gerçekleştiriliyor. Lütfen bekleyiniz...
+                    </ModalBody>
+                </Modal>
+
+                <Modal isOpen={this.state.changeStatusPrev.isSuccess}
+                    className={'modal-success ' + this.props.className}>
+                    
+                    <ModalHeader>İşleminiz Başarılı</ModalHeader>
+                    
+                    <ModalBody>
+                        Görev başarılı bir şekilde silinmiştir.
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button 
+                            color="success"
+                            onClick={() => this.setState(prevState => ({ changeStatusPrev: {...prevState.changeStatusPrev, isSuccess: false } }))}>
+                                Tamam
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal isOpen={this.state.changeStatusPrev.isFailed}
+                    className={'modal-danger ' + this.props.className}>
+                    
+                    <ModalHeader>İşleminiz Hatalı</ModalHeader>
+                    
+                    <ModalBody>
+                        Görev silinirken bir hata meydana geldi lütfen tekrar deneyiniz.
+                    </ModalBody>
+                    
+                    <ModalFooter>
+                        <Button color="danger"
+                            onClick={() => this.setState(prevState => ({ changeStatusPrev: { ...prevState.changeStatusPrev, isFailed: false } }))}>Tamam</Button>
+                    </ModalFooter>
+                </Modal>
+
+
+                <Button>Yapılacaklar</Button>
+                <Button>Yapılıyor</Button>
+                <Button>Tamamlandı</Button>
+                <Button onClick={this.toggleInputModalAddTodo}>Ekle</Button>
 
                 <ReactTable 
                     columns={this.columns} 
@@ -651,7 +883,9 @@ const mapDispatchToProps = (dispatch) => ({
     getTodos: () => fetchTodos(dispatch),
     todoAdd: (todo) => addTodo(dispatch, todo),
     todoUpdate: (todoId, todo) => updateTodo(dispatch, todoId, todo),
-    todoDelete: (todoId) => deleteTodo(dispatch, todoId)
+    todoDelete: (todoId) => deleteTodo(dispatch, todoId),
+    statusNextChange: (todoId) => changeStatusNext(dispatch, todoId),
+    statusPrevChange: (todoId) => changeStatusPrev(dispatch, todoId)
 });
 
 export default connect(
