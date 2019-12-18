@@ -6,7 +6,7 @@ import {
     InputGroupText, Input, FormGroup
 } from 'reactstrap';
 import moment from 'moment';
-import { fetchTodos, addTodo } from '../../redux/actions/todos';
+import { fetchTodos, addTodo, deleteTodo } from '../../redux/actions/todos';
 import { connect } from 'react-redux';
 
 class Home extends Component {
@@ -14,6 +14,14 @@ class Home extends Component {
         super();
 
         this.columns = [
+            {
+                Header: '',
+                Cell: (row, index) => (
+                    <Button onClick={() => this.toggleSureModalDeleteTodo(row.original.id)}>Sil</Button>
+                ),
+                width: 60,
+                filterable: false
+            },
             {
                 Header: 'Başlık',
                 accessor: 'title'
@@ -47,6 +55,13 @@ class Home extends Component {
                     importantValue: '1',
                     date: moment(new Date().getTime()).format('YYYY-MM-DD')
                 }
+            },
+            deleteTodo: {
+                sureModalVisual: false,
+                isSuccess: false,
+                isFailed: false,
+                isRequesting: false,
+                todoId: null
             }
         }
     }
@@ -72,6 +87,28 @@ class Home extends Component {
                 this.setState(prevState => ({
                     addTodo: { ...prevState.addTodo,
                         inputModalVisual: false,
+                        sureModalVisual: false,
+                        isSuccess: true,
+                        isRequesting: false,
+                        isFailed: false
+                    }
+                }));
+            }
+        }
+        else if (this.state.deleteTodo.isRequesting && !this.props.todo.isLoading) {
+            if (this.props.todo.error) {
+                this.setState(prevState => ({
+                    deleteTodo: { ...prevState.deleteTodo,
+                        sureModalVisual: false,
+                        isSuccess: false,
+                        isRequesting: false,
+                        isFailed: true
+                    }
+                }));
+            } 
+            else {
+                this.setState(prevState => ({
+                    deleteTodo: { ...prevState.deleteTodo,
                         sureModalVisual: false,
                         isSuccess: true,
                         isRequesting: false,
@@ -126,8 +163,8 @@ class Home extends Component {
             }
         }));
     }
-    addTodoPress = (data) => {
-        this.props.todoAdd(data);
+    addTodoPress = (todo) => {
+        this.props.todoAdd(todo);
 
         this.setState(prevState => ({
             addTodo: { ...prevState.addTodo,
@@ -139,6 +176,25 @@ class Home extends Component {
                     importantValue: '1',
                     date: moment(new Date().getTime()).format('YYYY-MM-DD')
                 }
+            }
+        }));
+    }
+
+    toggleSureModalDeleteTodo = (todoId) => {
+        this.setState(prevState => ({
+            deleteTodo: { ...prevState.deleteTodo,
+                sureModalVisual: !prevState.deleteTodo.sureModalVisual,
+                todoId: todoId
+            }
+        }));
+    }
+    deleteTodoPress = (todoId) => {
+        this.props.todoDelete(todoId);
+
+        this.setState(prevState => ({
+            deleteTodo: { ...prevState.deleteTodo,
+                isRequesting: true,
+                todoId: null
             }
         }));
     }
@@ -267,6 +323,66 @@ class Home extends Component {
                 </Modal>
 
 
+                <Modal isOpen={this.state.deleteTodo.sureModalVisual} toggle={this.toggleSureModalDeleteTodo}
+                    className={'modal-warning ' + this.props.className}>
+
+                    <ModalHeader toggle={this.toggleSureModalDeleteTodo}>Ekle</ModalHeader>
+                    
+                    <ModalBody>
+                        Görevi eklemek istediğinize emin misiniz?
+                    </ModalBody>
+                    
+                    <ModalFooter>
+                        <Button color="warning"
+                            onClick={() => this.deleteTodoPress(this.state.deleteTodo.todoId)}>Evet</Button>{' '}
+                        <Button color="secondary" onClick={this.toggleSureModalDeleteTodo}>Geri Dön</Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal isOpen={this.state.deleteTodo.isRequesting}
+                    className={'modal-info ' + this.props.className}>
+                    
+                    <ModalHeader>Bilgilendirme</ModalHeader>
+                    
+                    <ModalBody>
+                        İşleminiz gerçekleştiriliyor. Lütfen bekleyiniz...
+                    </ModalBody>
+                </Modal>
+
+                <Modal isOpen={this.state.deleteTodo.isSuccess}
+                    className={'modal-success ' + this.props.className}>
+                    
+                    <ModalHeader>İşleminiz Başarılı</ModalHeader>
+                    
+                    <ModalBody>
+                        Görev başarılı bir şekilde eklenmiştir.
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button 
+                            color="success"
+                            onClick={() => this.setState(prevState => ({ deleteTodo: {...prevState.deleteTodo, isSuccess: false } }))}>
+                                Tamam
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal isOpen={this.state.deleteTodo.isFailed}
+                    className={'modal-danger ' + this.props.className}>
+                    
+                    <ModalHeader>İşleminiz Hatalı</ModalHeader>
+                    
+                    <ModalBody>
+                        Görev eklenirken bir hata meydana geldi lütfen tekrar deneyiniz.
+                    </ModalBody>
+                    
+                    <ModalFooter>
+                        <Button color="danger"
+                            onClick={() => this.setState(prevState => ({ deleteTodo: { ...prevState.deleteTodo, isFailed: false } }))}>Tamam</Button>
+                    </ModalFooter>
+                </Modal>
+
+
                 <button>Yapılacaklar</button>
                 <button>Yapılıyor</button>
                 <button>Tamamlandı</button>
@@ -290,7 +406,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
     getTodos: () => fetchTodos(dispatch),
-    todoAdd: (data) => addTodo(dispatch, data)
+    todoAdd: (todo) => addTodo(dispatch, todo),
+    todoDelete: (todoId) => deleteTodo(dispatch, todoId)
 });
 
 export default connect(

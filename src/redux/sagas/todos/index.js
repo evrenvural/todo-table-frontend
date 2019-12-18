@@ -49,3 +49,26 @@ export function* addTodoSaga(){
         }
     }
 }
+
+export function* deleteTodoSaga(){
+    while(true) {
+        try{
+            // take action
+            const { payload } = yield take(REQUEST(ACTION_TYPE.DELETE_TODO));
+
+            // service call
+            yield call([todoServices, todoServices.deleteTodo], payload.todoId);
+
+            // change state
+            yield put({
+                type: SUCCESS(ACTION_TYPE.DELETE_TODO),
+                payload: {id: payload.todoId}
+            });
+        } catch(error){
+            yield put({
+                type: FAILURE(ACTION_TYPE.DELETE_TODO),
+                payload: {data: error}
+            });
+        }
+    }
+}

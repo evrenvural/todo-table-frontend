@@ -7,6 +7,8 @@ const InitialState = {
     isLoading: false
 };
 
+let tempTodoArray = [];
+
 export default function todos(state = InitialState, action = {}){
     switch(action.type) {
         case REQUEST(ACTION_TYPE.FETCH_TODOS):
@@ -35,17 +37,39 @@ export default function todos(state = InitialState, action = {}){
                 isLoading: true
             };
         case SUCCESS(ACTION_TYPE.ADD_TODO):
-            const todosArray = [...state.todos];
+            tempTodoArray = [...state.todos];
             const newData = action.payload.data;
-            todosArray.push(newData)
+            tempTodoArray.push(newData)
 
             return {
                 ...state,
-                todos: todosArray,
+                todos: tempTodoArray,
                 error: null,
                 isLoading: false
             };
         case FAILURE(ACTION_TYPE.ADD_TODO):
+            return {
+                ...state,
+                error: action.payload.data,
+                isLoading: false
+            };
+        case REQUEST(ACTION_TYPE.DELETE_TODO):
+            return {
+                ...state,
+                error: null,
+                isLoading: true
+            };
+        case SUCCESS(ACTION_TYPE.DELETE_TODO):
+            tempTodoArray = [...state.todos];
+            tempTodoArray = tempTodoArray.filter(item => item.id !== action.payload.id);
+
+            return {
+                ...state,
+                todos: tempTodoArray,
+                error: null,
+                isLoading: false
+            };
+        case FAILURE(ACTION_TYPE.DELETE_TODO):
             return {
                 ...state,
                 error: action.payload.data,
