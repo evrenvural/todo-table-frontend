@@ -50,6 +50,29 @@ export function* addTodoSaga(){
     }
 }
 
+export function* updateTodoSaga(){
+    while(true) {
+        try{
+            // take action
+            const { payload } = yield take(REQUEST(ACTION_TYPE.UPDATE_TODO));
+
+            // service call
+            yield call([todoServices, todoServices.updateTodo], payload.todoId, payload.data);
+
+            // change state
+            yield put({
+                type: SUCCESS(ACTION_TYPE.UPDATE_TODO),
+                payload: {id: payload.todoId, data: payload.data}
+            });
+        } catch(error){
+            yield put({
+                type: FAILURE(ACTION_TYPE.UPDATE_TODO),
+                payload: {data: error}
+            });
+        }
+    }
+}
+
 export function* deleteTodoSaga(){
     while(true) {
         try{
