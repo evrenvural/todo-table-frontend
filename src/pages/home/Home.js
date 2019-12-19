@@ -767,10 +767,22 @@ class Home extends Component {
                 <Modal isOpen={this.state.changeStatusNext.sureModalVisual} toggle={this.toggleSureModalChangeStatusNext}
                     className={'modal-warning ' + this.props.className}>
 
-                    <ModalHeader toggle={this.toggleSureModalChangeStatusNext}>Sil</ModalHeader>
+                    <ModalHeader toggle={this.toggleSureModalChangeStatusNext}>
+                        {
+                            this.state.tableStatus === "Todo" ?
+                                "Yapılıyor"
+                            :
+                                "Tamamlandı"
+                        }
+                    </ModalHeader>
                     
                     <ModalBody>
-                        Görevi silmek istediğinize emin misiniz?
+                        {
+                            this.state.tableStatus === "Todo" ?
+                                "Görevi yapılıyor olarak işaretlemek istediğinize emin misiniz?"
+                            :
+                                "Görevi tamamlandı olarak işaretlemek istediğinize emin misiniz?"
+                        }
                     </ModalBody>
                     
                     <ModalFooter>
@@ -796,7 +808,12 @@ class Home extends Component {
                     <ModalHeader>İşleminiz Başarılı</ModalHeader>
                     
                     <ModalBody>
-                        Görev başarılı bir şekilde silinmiştir.
+                        {
+                            this.state.tableStatus === "Todo" ?
+                                "Görev yapılıyor olarak işaretlendi."
+                            :
+                                "Görev tamamlandı."
+                        }
                     </ModalBody>
 
                     <ModalFooter>
@@ -814,7 +831,7 @@ class Home extends Component {
                     <ModalHeader>İşleminiz Hatalı</ModalHeader>
                     
                     <ModalBody>
-                        Görev silinirken bir hata meydana geldi lütfen tekrar deneyiniz.
+                        Görev işaretlenirken bir hata meydana geldi lütfen tekrar deneyiniz.
                     </ModalBody>
                     
                     <ModalFooter>
@@ -827,10 +844,22 @@ class Home extends Component {
                 <Modal isOpen={this.state.changeStatusPrev.sureModalVisual} toggle={this.toggleSureModalChangeStatusPrev}
                     className={'modal-warning ' + this.props.className}>
 
-                    <ModalHeader toggle={this.toggleSureModalChangeStatusPrev}>Sil</ModalHeader>
+                    <ModalHeader toggle={this.toggleSureModalChangeStatusPrev}>
+                        {
+                            this.state.tableStatus === "Done" ?
+                                "Yapılıyor"
+                            :
+                                "Yapılacak"
+                        }
+                    </ModalHeader>
                     
                     <ModalBody>
-                        Görevi silmek istediğinize emin misiniz?
+                        {
+                            this.state.tableStatus === "Done" ?
+                                "Görevi yapılıyor olarak işaretlemek istediğinize emin misiniz?"
+                            :
+                                "Görevi yapılacak olarak işaretlemek istediğinize emin misiniz?"
+                        }
                     </ModalBody>
                     
                     <ModalFooter>
@@ -856,7 +885,12 @@ class Home extends Component {
                     <ModalHeader>İşleminiz Başarılı</ModalHeader>
                     
                     <ModalBody>
-                        Görev başarılı bir şekilde silinmiştir.
+                        {
+                            this.state.tableStatus === "Done" ?
+                                "Görev yapılıyor olarak işaretlendi."
+                            :
+                                "Görev yapılacak olarak işaretlendi."
+                        }
                     </ModalBody>
 
                     <ModalFooter>
@@ -874,7 +908,7 @@ class Home extends Component {
                     <ModalHeader>İşleminiz Hatalı</ModalHeader>
                     
                     <ModalBody>
-                        Görev silinirken bir hata meydana geldi lütfen tekrar deneyiniz.
+                        Görev işaretlenirken bir hata meydana geldi lütfen tekrar deneyiniz.
                     </ModalBody>
                     
                     <ModalFooter>
