@@ -13,23 +13,7 @@ class Home extends Component {
     constructor(){
         super();
 
-        this.columns = [
-            {
-                Header: '',
-                Cell: (row) => (
-                    <Button onClick={() => this.toggleSureModalChangeStatusNext(row.original.id)}>+</Button>
-                ),
-                width: 50,
-                filterable: false
-            },
-            {
-                Header: '',
-                Cell: (row) => (
-                    <Button onClick={() => this.toggleSureModalChangeStatusPrev(row.original.id)}>-</Button>
-                ),
-                width: 50,
-                filterable: false
-            },
+        this.columnsWithoutStatusButtons = [
             {
                 Header: 'Başlık',
                 accessor: 'title'
@@ -66,6 +50,8 @@ class Home extends Component {
         ]
 
         this.state = {
+            tableStatus: "Todo",
+            columns: this.columnsWithoutStatusButtons,
             addTodo: {
                 inputModalVisual: false,
                 sureModalVisual: false,
@@ -115,13 +101,41 @@ class Home extends Component {
                 todoId: null
             },
         }
+
+        // Status buttons
+        this.changeStatusNextColumn = {
+            Header: '',
+            Cell: (row) => (
+                <Button onClick={() => this.toggleSureModalChangeStatusNext(row.original.id)}>+</Button>
+            ),
+            width: 50,
+            filterable: false,
+        }
+        this.changeStatusPrevColumn = {
+            Header: '',
+            Cell: (row) => (
+                <Button onClick={() => this.toggleSureModalChangeStatusPrev(row.original.id)}>-</Button>
+            ),
+            width: 50,
+            filterable: false
+        }
     }
 
     componentDidMount(){
         this.props.getTodos();
+        // Status buttons control
+        this.statusButtonsVisualControl();
     }
 
     componentDidUpdate(){
+        // Status buttons control
+        if(this.isStatusChanged){ 
+            this.statusButtonsVisualControl();
+            // For DidUpdate issue
+            this.isStatusChanged = false;
+        }
+        
+        // Request buttons control
         if (this.state.addTodo.isRequesting && !this.props.todo.isLoading) {
             if (this.props.todo.error) {
                 this.setState(prevState => ({
@@ -235,6 +249,18 @@ class Home extends Component {
                     }
                 }));
             }
+        }
+    }
+
+    statusButtonsVisualControl = () => {
+        if(this.state.tableStatus === "Todo"){ 
+            this.setState({ columns : [this.changeStatusNextColumn, ...this.columnsWithoutStatusButtons] });
+        }
+        else if(this.state.tableStatus === "InProgress"){
+            this.setState({ columns : [this.changeStatusNextColumn, this.changeStatusPrevColumn, ...this.columnsWithoutStatusButtons] });
+        }
+        else if(this.state.tableStatus === "Done"){ 
+            this.setState({ columns : [this.changeStatusPrevColumn, ...this.columnsWithoutStatusButtons] });
         }
     }
 
@@ -858,14 +884,14 @@ class Home extends Component {
                 </Modal>
 
 
-                <Button>Yapılacaklar</Button>
-                <Button>Yapılıyor</Button>
-                <Button>Tamamlandı</Button>
+                <Button onClick={() => { this.setState({tableStatus: "Todo"}); this.isStatusChanged = true; }}>Yapılacaklar</Button>
+                <Button onClick={() => { this.setState({tableStatus: "InProgress"}); this.isStatusChanged = true; }}>Yapılıyor</Button>
+                <Button onClick={() => { this.setState({tableStatus: "Done"}); this.isStatusChanged = true; }}>Tamamlandı</Button>
                 <Button onClick={this.toggleInputModalAddTodo}>Ekle</Button>
 
                 <ReactTable 
-                    columns={this.columns} 
-                    data={this.props.todos}
+                    columns={this.state.columns} 
+                    data={this.props.todos.filter(item => item.status === this.state.tableStatus)}
                     filterable={true}
                     pageSize={10}
                 />
