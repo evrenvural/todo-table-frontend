@@ -34,12 +34,12 @@ export function* addTodoSaga(){
             const { payload } = yield take(REQUEST(ACTION_TYPE.ADD_TODO));
 
             // service call
-            yield call([todoServices, todoServices.addTodo], payload.data);
+            const response = yield call([todoServices, todoServices.addTodo], payload.data);
 
             // change state
             yield put({
                 type: SUCCESS(ACTION_TYPE.ADD_TODO),
-                payload: {data: payload.data}
+                payload: {data: response.data}
             });
         } catch(error){
             yield put({
@@ -57,12 +57,12 @@ export function* updateTodoSaga(){
             const { payload } = yield take(REQUEST(ACTION_TYPE.UPDATE_TODO));
 
             // service call
-            yield call([todoServices, todoServices.updateTodo], payload.todoId, payload.data);
+            const response = yield call([todoServices, todoServices.updateTodo], payload.todoId, payload.data);
 
             // change state
             yield put({
                 type: SUCCESS(ACTION_TYPE.UPDATE_TODO),
-                payload: {id: payload.todoId, data: payload.data}
+                payload: {data: response.data}
             });
         } catch(error){
             yield put({
@@ -103,12 +103,12 @@ export function* changeStatusNextSaga(){
             const { payload } = yield take(REQUEST(ACTION_TYPE.CHANGE_STATUS_NEXT));
 
             // service call
-            yield call([todoServices, todoServices.changeStatusNext], payload.todoId);
+            const response = yield call([todoServices, todoServices.changeStatusNext], payload.todoId);
 
             // change state
             yield put({
                 type: SUCCESS(ACTION_TYPE.CHANGE_STATUS_NEXT),
-                payload: {id: payload.todoId}
+                payload: {data: response.data}
             });
         } catch(error){
             yield put({
@@ -126,12 +126,12 @@ export function* changeStatusPrevSaga(){
             const { payload } = yield take(REQUEST(ACTION_TYPE.CHANGE_STATUS_PREV));
 
             // service call
-            yield call([todoServices, todoServices.changeStatusPrev], payload.todoId);
+            const response = yield call([todoServices, todoServices.changeStatusPrev], payload.todoId);
 
             // change state
             yield put({
                 type: SUCCESS(ACTION_TYPE.CHANGE_STATUS_PREV),
-                payload: {id: payload.todoId}
+                payload: {data: response.data}
             });
         } catch(error){
             yield put({

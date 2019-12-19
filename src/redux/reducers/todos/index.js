@@ -62,7 +62,7 @@ export default function todos(state = InitialState, action = {}){
         case SUCCESS(ACTION_TYPE.UPDATE_TODO):
             tempTodoArray = [...state.todos];
             tempTodoArray = tempTodoArray.map( 
-                item => item.id === action.payload.id ? 
+                item => item.id === action.payload.data.id ? 
                     action.payload.data : item
                 );
 
@@ -95,6 +95,56 @@ export default function todos(state = InitialState, action = {}){
                 isLoading: false
             };
         case FAILURE(ACTION_TYPE.DELETE_TODO):
+            return {
+                ...state,
+                error: action.payload.data,
+                isLoading: false
+            };
+        case REQUEST(ACTION_TYPE.CHANGE_STATUS_NEXT):
+            return {
+                ...state,
+                error: null,
+                isLoading: true
+            };
+        case SUCCESS(ACTION_TYPE.CHANGE_STATUS_NEXT):
+            tempTodoArray = [...state.todos];
+            tempTodoArray = tempTodoArray.map( 
+                item => item.id === action.payload.data.id ? 
+                    action.payload.data : item
+                );
+
+            return {
+                ...state,
+                todos: tempTodoArray,
+                error: null,
+                isLoading: false
+            };
+        case FAILURE(ACTION_TYPE.CHANGE_STATUS_NEXT):
+            return {
+                ...state,
+                error: action.payload.data,
+                isLoading: false
+            };
+        case REQUEST(ACTION_TYPE.CHANGE_STATUS_PREV):
+            return {
+                ...state,
+                error: null,
+                isLoading: true
+            };
+        case SUCCESS(ACTION_TYPE.CHANGE_STATUS_PREV):
+            tempTodoArray = [...state.todos];
+            tempTodoArray = tempTodoArray.map( 
+                item => item.id === action.payload.data.id ? 
+                    action.payload.data : item
+                );
+
+            return {
+                ...state,
+                todos: tempTodoArray,
+                error: null,
+                isLoading: false
+            };
+        case FAILURE(ACTION_TYPE.CHANGE_STATUS_PREV):
             return {
                 ...state,
                 error: action.payload.data,

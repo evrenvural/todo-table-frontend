@@ -277,24 +277,6 @@ class Home extends Component {
         }));
     };
 
-    handleDateChange = (event) => {
-        const value = event.target.value;
-        const aim = (event.target.name).split(".");
-
-        const convertToDoubleFromDate = (dateString) => {
-            const date = new Date(dateString);
-            return date.getTime();
-        }
-
-        this.setState(prevState => ({
-            [aim[0]]: { ...prevState[aim[0]],
-                data: { ...prevState[aim[0]].data,
-                    [aim[1]]: convertToDoubleFromDate(value)
-                }
-            }
-        }));
-    }
-
     toggleInputModalAddTodo = () => {
         if(this.state.addTodo.inputModalVisual){
             this.setState(prevState => ({
@@ -506,7 +488,7 @@ class Home extends Component {
                             <Input
                                 name="addTodo.date"
                                 type="date"
-                                onChange={this.handleDateChange}
+                                onChange={this.handleChange}
                                 value={moment(this.state.addTodo.data.date).format('YYYY-MM-DD')}
                                 />
                         </InputGroup>
@@ -631,7 +613,7 @@ class Home extends Component {
                             <Input
                                 name="updateTodo.date"
                                 type="date"
-                                onChange={this.handleDateChange}
+                                onChange={this.handleChange}
                                 value={moment(this.state.updateTodo.data.date).format('YYYY-MM-DD')}
                                 />
                         </InputGroup>
